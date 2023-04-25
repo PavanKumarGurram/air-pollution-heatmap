@@ -4,7 +4,7 @@ import dash_html_components as html
 import plotly.graph_objects as go
 import requests
 
-BREEZOMETER_API_KEY = 'your_api_key_here'
+BREEZOMETER_API_KEY = '36fec6eacc224e17969e0a8b9128c7ce'
 
 def get_air_quality_data(latitude, longitude):
     url = f'https://api.breezometer.com/air-quality/v2/current-conditions?lat={latitude}&lon={longitude}&key={BREEZOMETER_API_KEY}'
