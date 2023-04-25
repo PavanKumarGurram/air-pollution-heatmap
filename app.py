@@ -1,6 +1,6 @@
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 import plotly.graph_objects as go
 import requests
 
@@ -13,6 +13,7 @@ def get_air_quality_data(latitude, longitude):
     return data
 
 app = dash.Dash(__name__)
+server = app.server
 
 app.layout = html.Div([
     html.H1('Air Pollution Heatmap'),
