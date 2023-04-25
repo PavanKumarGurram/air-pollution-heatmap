@@ -10,6 +10,7 @@ def get_air_quality_data(latitude, longitude):
     url = f'https://api.breezometer.com/air-quality/v2/current-conditions?lat={latitude}&lon={longitude}&key={BREEZOMETER_API_KEY}'
     response = requests.get(url)
     data = response.json()
+    print(data)
     return data
 
 app = dash.Dash(__name__)
