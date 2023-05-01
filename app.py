@@ -354,4 +354,5 @@ def add_marker_and_show_coordinates(click_lat_lng):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
