@@ -4,12 +4,11 @@ import json
 import plotly.graph_objects as go
 import dash
 import dash_leaflet as dl
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import pandas as pd
-import dash_table
+#import dash_table
 import plotly.express as px
 from dash.exceptions import PreventUpdate
 import mapbox
