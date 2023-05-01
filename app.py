@@ -13,7 +13,6 @@ import dash_table
 import plotly.express as px
 from dash.exceptions import PreventUpdate
 import mapbox
-import json
 import config
 import os
 
@@ -21,8 +20,8 @@ app = Flask(__name__)
 
 
 # Mapbox API key and Breezometer API key, I have hidden the keys in github secrets as they are private
-mapbox_token = os.environ.get('MAPBOX_API_KEY')
-breezometer_token = os.environ.get('BREEZOMETER_API_KEY')
+mapbox_token = config.MAPBOX_API_KEY
+breezometer_token = config.BREEZOMETER_API_KEY
 geocoding = mapbox.Geocoder(access_token=mapbox_token)
 
 
