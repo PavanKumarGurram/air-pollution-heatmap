@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Air Pollution Heatmap Web App</title>
+  </head>
+  <body>
+    <h1>Welcome to our project!</h1>
+    <p>In this project we have implemented three kinds of web applications. Each of them has their own page. Below are the descriptions and links to each of these application.</p>
+    <h2><a href="http://127.0.0.1:5000/javascript_map">Webapp using flask and javascript map</a></h2>
+    <p>In this application we have developed Air Pollution Heatmap using Flask and Javascript, which allows users to visualize air quality information using a heatmap and retrieve real-time air quality data for specific locations. Our server-side implementation utilizes Flask to serve HTML templates and handle incoming requests, while the client-side JavaScript map leverages Mapbox GL JS for rendering interactive maps and displaying air pollution data.<br>
+    By incorporating the Mapbox API for location-based services and the Breezometer API for air quality data, we have enabled users to search for a location or click on the map to access detailed air quality information, such as AQI (Air Quality Index), category, and timestamp. Our user-friendly interface and comprehensive data visualization make Air Pollution Explorer an essential tool for understanding and monitoring air pollution levels in various locations around the world.displaying heatmap of air pollution levels. </p>
+    <h2><a href="http://127.0.0.1:5000/plotly_map">Webapp using flask and plotly map</a></h2>
+    <p>In this application we tried to implement the map using plotly and faced several challenges during the development of Air Pollution heatmap webapp. One of the challenges was implementing click events in the Plotly map to show popups with air quality information for specific locations. Unfortunately, we were unable to resolve this issue, and as a result, the popups do not currently appear on the map.<br>
+    However, we were successful in implementing a search function with autocomplete that allows users to search for a location and view air quality data for that location. We used the Mapbox API to enable location-based services and the Breezometer API to retrieve air quality data.<br>
+    Despite the challenge with the click events, we have continued to improve Air Pollution Explorer by exploring other options such as Dash Leaflet, a Python library for interactive mapping visualization. We have transitioned to using Dash Leaflet for our map visualization, which has allowed us to overcome some of the limitations we faced with the Plotly map, which will be explained in next section.</p>
+    <h2><a href="http://127.0.0.1:5000/dash">Webapp using Dash and Dash-leaflet map</a></h2>
+    <p>In this application, we have developed an interactive web application using Dash and Dash Leaflet. We have utilized the Mapbox API for location-based services and the Breezometer API for air quality data to provide accurate and up-to-date information. Our server-side implementation is built using Dash, which provides an easy-to-use framework for building web applications. Dash Leaflet is used for rendering interactive maps, including zoom and pan features.<br>
+    The user interface is designed to be user-friendly, and it includes a search box for finding specific locations. The search box is powered by the Mapbox geocoding API, which allows users to enter an address or location name and find the corresponding latitude and longitude.</p>
+  </body>
+  <footer style="position: absolute; bottom: 0; width: 100%; text-align: center;">
+  Designed by Pavan Kumar Gurram and Krithik Rajavelu
+  </footer>
+
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Air Pollution - Heatmap & Realtime data</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .plot-container {
+    height: calc(100% - 125px);
+  }
+  </style>
+
+
+</head>
+
+<body>
+  <h2 class="text-center my-3">Air Pollution - Heatmap & Realtime data</h2>
+
+  <div class="container mt-3">
+    <div class="row">
+      <div class="col">
+        <form id="search-form" class="d-flex">
+          <input class="form-control me-2" type="search" id="search-input" placeholder="Search location" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <div class="plot-container">
+          {{ plot | safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const plotElement = document.querySelector('.plotly-graph-div');
+    const searchInput = document.getElementById('search-input');
+
+    function showPopup(lat, lon) {
+  fetch(`/get_air_quality?lat=${lat}&lon=${lon}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.data && data.data.indexes && data.data.indexes.baqi) {
+        const aqi = data.data.indexes.baqi.aqi;
+        const datetime = data.data.datetime;
+        const html = `
+          <strong>AQI:</strong> ${aqi}<br>
+          <strong>Timestamp:</strong> ${datetime}
+        `;
+
+        Plotly.addTraces(plotElement, {
+          type: 'scattermapbox',
+          mode: 'text',
+          lon: [lon],
+          lat: [lat],
+          text: [html],
+          textposition: 'bottom left',
+          showlegend: false
+        });
+      } else {
+        alert("Air quality data is not available for this location.");
+      }
+    });
+}
+
+
+
+    plotElement.on('plotly_click', function (eventData) {
+      const lon = eventData.points[0].lon;
+      const lat = eventData.points[0].lat;
+
+      showPopup(lat, lon);
+    });
+
+    $("#search-input").autocomplete({
+      source: function (request, response) {
+        $.post("/search_location", { query: request.term }, function (data) {
+          if (data.features && data.features.length > 0) {
+            const suggestions = data.features.map((feature) => {
+              return {
+                label: feature.place_name,
+                value: feature.place_name,
+                coordinates: feature.center,
+              };
+            });
+            response(suggestions);
+          } else {
+            response([]);
+          }
+        });
+      },
+      minLength: 2,
+      select: function (event, ui) {
+        const coordinates = ui.item.coordinates;
+        const lat = coordinates[1];
+        const lon = coordinates[0];
+
+        plotElement.on('plotly_relayout', function () {
+          showPopup(lat, lon);
+        });
+
+        Plotly.relayout(plotElement, {
+          'mapbox.center.lat': lat,
+          'mapbox.center.lon': lon,
+          'mapbox.zoom': 12
+        });
+
+        event.preventDefault();
+      },
+    });
+
+    $("#search-form").submit(function (event) {
+      event.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>
