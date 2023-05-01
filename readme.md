@@ -1,12 +1,12 @@
 
-# Air Pollution Heatmap
+# Air Pollution Heatmap Webapp
 
-This is a web application that visualizes air pollution data in the form of an interactive heatmap. The application is built using Python, Flask, and a variety of other tools and libraries.
+This is a web application that visualizes air pollution data in the form of an interactive heatmap. The application is built using Python, Flask, Dash and a variety of other tools and libraries.
 
 ## Features
 
-- Display air pollution data from various sources in a heatmap format
-- Filter data based on pollutant type, date range, and geographical area
+- Display air pollution data in a heatmap format and hourly forecast in graph format
+- See data based on pollutant type, date range, and geographical area
 - Interactive map allowing users to zoom and pan to explore the data
 - Responsive design for desktop and mobile devices
 
