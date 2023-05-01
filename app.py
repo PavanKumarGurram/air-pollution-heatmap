@@ -18,7 +18,7 @@ import os
 app = Flask(__name__)
 
 
-# Mapbox API key and Breezometer API key, I have hidden the keys in github secrets as they are private
+# Mapbox API key and Breezometer API key, I have hidden the keys in config file as they are private
 mapbox_token = config.MAPBOX_API_KEY
 breezometer_token = config.BREEZOMETER_API_KEY
 geocoding = mapbox.Geocoder(access_token=mapbox_token)
@@ -354,5 +354,4 @@ def add_marker_and_show_coordinates(click_lat_lng):
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(debug=True)
