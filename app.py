@@ -15,32 +15,37 @@ import mapbox
 import config
 import os
 
+
+# Create a Flask app instance
 app = Flask(__name__)
 
 
-# Mapbox API key and Breezometer API key, I have hidden the keys in config file as they are private
+# Get the Mapbox and Breezometer API keys from the config file
 mapbox_token = config.MAPBOX_API_KEY
 breezometer_token = config.BREEZOMETER_API_KEY
 geocoding = mapbox.Geocoder(access_token=mapbox_token)
 
 
-
+# Create a Dash app instance
 dash_app = dash.Dash(__name__, server=app, url_base_pathname='/dash/', external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 
 
-
-#Flask App with Air Pollution map on HTML and Javascript
+#Webapp Homepage
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
+#Flask App with Air Pollution map on HTML and Javascript
 @app.route('/javascript_map')
 def javascriptmap():
     return render_template('javascript_map.html')
 
+
 @app.route('/search_location', methods=['POST'])
 def search_location():
+    #Code to search location using Mapbox API
     query = request.form.get('query')
     url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{query}.json?access_token={mapbox_token}"
     response = requests.get(url)
@@ -50,6 +55,7 @@ def search_location():
 
 @app.route('/get_air_quality', methods=['POST'])
 def get_air_quality():
+    #Code to get air quality information from Breezometer Air Quality API
     lat = request.form['lat']
     lon = request.form['lon']
     url = f'https://api.breezometer.com/air-quality/v2/current-conditions?lat={lat}&lon={lon}&key={breezometer_token}&features=breezometer_aqi'
@@ -61,6 +67,7 @@ def get_air_quality():
 #Flask App with Plotly map for Air Pollution
 @app.route('/plotly_map')
 def plotly_map():
+    # Code to generate a Plotly Scattermapbox figure with air pollution heatmap
     fig = go.Figure()
 
     fig.add_trace(go.Scattermapbox(
@@ -100,8 +107,9 @@ def plotly_map():
     plot_html = fig.to_html(full_html=False)
     return render_template('plotly_map.html', plot=plot_html)
 
-# Dash Leaflet App for Air Pollution (All code below is Python)
+# Dash Leaflet App for Air Pollution
 
+# Create Dash Leaflet components for the air pollution map
 mapbox_tile_layer = dl.TileLayer(
     url=f'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{{z}}/{{x}}/{{y}}@2x?access_token={mapbox_token}',
     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -118,9 +126,10 @@ breezometer_tile_layer = dl.TileLayer(
     minZoom=2,
     tileSize=512,
     zoomOffset=-1,
-    opacity=0.6  # Set opacity to 60% for breezometer heatmap tiles
+    opacity=0.6  # Set opacity to 60% for breezometer heatmap tiles as per the breezometer website
 )
 
+# Define Dash app layout
 dash_app.layout = html.Div([
     html.H1("Air Pollution - Heatmap & Realtime data", style={'width': '100%', 'height': '10vh', 'margin': 'auto', 'text-align': 'center', 'display': 'flex', 'justify-content': 'center', 'align-items': 'center'}),
     dash_table.DataTable(
@@ -220,7 +229,7 @@ dash_app.layout = html.Div([
 ])
 
 
-
+# Define Dash app callbacks for Searching location
 @dash_app.callback(
     [Output("map", "center"), Output("map", "zoom"), Output("map", "click_lat_lng")],
     Input("search-box", "n_submit"),
@@ -228,6 +237,7 @@ dash_app.layout = html.Div([
     State("search-box", "value"),
 )
 def search_location(n_submit, n_blur, search_value):
+    # Code to search for a location and update the map
     if not search_value:
         raise PreventUpdate
 
@@ -241,11 +251,13 @@ def search_location(n_submit, n_blur, search_value):
         raise PreventUpdate
 
 
+# Define Dash app callbacks for forecast plot
 @dash_app.callback(
     Output("forecast-plot", "figure"),
     Input("map", "click_lat_lng"),
 )
 def update_forecast_plot(click_lat_lng):
+    # Code to update the forecast plot based on the clicked location
     if click_lat_lng is None:
         raise PreventUpdate
 
@@ -291,24 +303,33 @@ def update_forecast_plot(click_lat_lng):
     Input("map", "click_lat_lng"),
 )
 def add_marker_and_show_coordinates(click_lat_lng):
-
+    # This function adds a marker on the map and displays coordinates and pollutant information
+    
+    # Get the callback context and the triggered input
     ctx = dash.callback_context
     triggered_input = ctx.triggered[0]["prop_id"].split(".")[0]
     pollutants_info = []
 
+    # If no click event, show instructions
     if click_lat_lng is None:
         return None, "Click on the map to get the coordinates"
+    # If triggered input is search box, do not update
     elif triggered_input == "search-box":
         return None, None
     else:
+        # Extract latitude and longitude from click event
         lat, lon = click_lat_lng
+        # Fetch air quality data from Breezometer API
         response = requests.get(
             f"https://api.breezometer.com/air-quality/v2/current-conditions?lat={lat}&lon={lon}&key={breezometer_token}&features=breezometer_aqi,pollutants_concentrations,pollutants_aqi_information"
         )
         data = response.json()
+
+        # If error in response, set air quality info as not available
         if data.get("error"):
             air_quality_info = "Air quality data not available"
         else:
+            # Extract air quality index, category, and dominant pollutant            
             indexes = data["data"]["indexes"]
             if "baqi" in indexes:
                 aqi = indexes["baqi"]["aqi"]
@@ -320,6 +341,7 @@ def add_marker_and_show_coordinates(click_lat_lng):
             else:
                 air_quality_info = "Air quality data not available"
 
+            # Extract pollutants information and create a list of dictionaries            
             pollutants = data["data"]["pollutants"]
             pollutants_info = []
             for key, value in pollutants.items():
@@ -330,7 +352,10 @@ def add_marker_and_show_coordinates(click_lat_lng):
                         "concentration": value["concentration"]["value"],
                         "concentration_units": value["concentration"]["units"],
                     })
+
+        # Create a DataFrame from the pollutants_info list                   
         df = pd.DataFrame(pollutants_info)
+
         # Reverse geocoding using Mapbox API
         geocoding_response = geocoding.reverse(lon=lon, lat=lat)
         if geocoding_response.status_code == 200 and geocoding_response.geojson()['features']:
@@ -339,6 +364,7 @@ def add_marker_and_show_coordinates(click_lat_lng):
         else:
             location = "Location not found"
 
+        # Create a marker with a popup displaying location and air quality information
         marker=dl.Marker(
                 position=click_lat_lng,
                 children=[dl.Popup(
@@ -348,9 +374,8 @@ def add_marker_and_show_coordinates(click_lat_lng):
                     ]), closeOnClick=False, autoPan=True, keepInView=True
                 ),]
             )
-        return [marker
-            
-        ], f"coordinates: {lat:.4f}, {lon:.4f}", df.to_dict("records")
+        # Return marker, formatted coordinates, and DataFrame as a dictionary        
+        return [marker], f"coordinates: {lat:.4f}, {lon:.4f}", df.to_dict("records")
 
 
 if __name__ == '__main__':
